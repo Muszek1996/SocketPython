@@ -1,7 +1,8 @@
-import socket
+import socket,pickle
 import sys
 import threading
-
+import task
+import priority
 
 class Server:
     def __init__(self):
@@ -10,6 +11,7 @@ class Server:
         self.backlog = 5
         self.size = 1024
         self.server = None
+        self.tasks = []
         self.threads = []
 
     def open_socket(self):
@@ -53,6 +55,7 @@ class Client(threading.Thread):
         self.client = client
         self.address = address
         self.size = 1024
+        self.tasks = []
 
     def run(self):
         running = 1
@@ -60,9 +63,9 @@ class Client(threading.Thread):
             try:
                 data = self.client.recv(self.size)
                 if data:
-                    print("Odebralem wiadomosc (" + data.decode() + ") na porcie (" + str(
-                        self.address[1]) + "), odsylam.")
-                    self.client.send(data)
+                    task = pickle.loads(data)
+                    self.tasks.append(task)
+                    print(str(task))
                 else:
                     self.client.close()
                     running = 0
